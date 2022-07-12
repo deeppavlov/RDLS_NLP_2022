@@ -1,0 +1,15 @@
+# Archieve
+Archieve/
+*.synctex.gz
+*.bbl
+*.out
+*.log
+*.blg
+*.aux
+*.pdf
+*.fdb_latexmk
+*.fls
+*.nav
+*.snm
+*.toc
+!docs/*

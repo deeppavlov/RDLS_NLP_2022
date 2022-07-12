@@ -1,0 +1,515 @@
+\documentclass{beamer}
+\usepackage{gensymb}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\hypersetup{unicode=true}
+ 
+
+\begin{document}
+\begin{frame}
+\frametitle{Problem statement}
+
+
+\textbf{Dataset}: ~$X^n = \{x_1, \dots, x_n\}$ - training samples
+
+$ i \prec j$ - $i$ element is better than $j$, where $\{i,j\} \subset X^n$
+
+
+
+\textbf{To Find}: It is necessary to find a mapping model $a : X \rightarrow \mathbb{R}$ for which the following equation is true
+\begin{center}
+    $ i \prec j \Rightarrow a(x_i) < a(x_j) $
+\end{center}
+
+\textbf{Linear ranking model}:
+\begin{center}
+$ a(x, w) = <x,w>$
+\end{center}
+
+where $x \rightarrowtail (f_1(x), \dots, f_n(x))$ - a feature vector of sample $x$
+\end{frame}
+
+\begin{frame}
+\frametitle{pairwise1}
+
+\begin{center}
+    $ i \prec j \Rightarrow a(x_i) < a(x_j) $
+\end{center}
+
+formally, loss function is:
+\[
+    \sum_{(i, j) \in X}
+        [a(x_j) - a(x_i) < 0],
+\]
+where~$X$~---the set of pairs for which the order is known.
+This functional is not differentiable, but we have already solved such a problem in linear classification~---
+we have to replace the error indicator~$[z < 0]$ by its smooth upper estimate~$L(z)$:
+\[
+    \sum_{(i, j) \in X}
+        [a(x_j) - a(x_i) < 0]
+    \leq
+    \sum_{(i, j) \in X}
+        L\left(
+            a(x_j) - a(x_i)
+        \right).
+\]
+\end{frame}
+
+\begin{frame}
+\frametitle{pairwise2}
+
+\begin{center}
+    $ i \prec j \Rightarrow a(x_i) < a(x_j) $
+\end{center}
+
+formally, loss function is:
+\[
+    \sum_{(i, j) \in X}
+        [a(x_j) - a(x_i) < 0],
+\]
+where~$X$~---the set of pairs for which the order is known.
+This functional is not differentiable, but we have already solved such a problem in linear classification~---
+we have to replace the error indicator~$[z < 0]$ by its smooth upper estimate~$L(z)$:
+\[
+    \sum_{(i, j) \in X}
+        [a(x_j) - a(x_i) < 0]
+    \leq
+    \sum_{(i, j) \in X}
+        L\left(
+            a(x_j) - a(x_i)
+        \right).
+\]
+\end{frame}
+
+\begin{frame}
+\frametitle{pairwise2}
+
+\begin{center}
+    $ i \prec j \Rightarrow a(x_i) < a(x_j) $
+\end{center}
+
+As an estimate~$L(z)$ we can take, for example, the logistic function~$L(z) = \log(1 + e^{-\sigma z})$ with parameter~$\sigma > 0$~---
+In this case, we get the \textbf{RankNet}6 method.
+This functional can be optimized by ordinary stochastic gradient descent.
+If we use a linear model~$a(x) = \langle w, x \rangle$, then one step will be
+\[
+    w
+    :=
+    w
+    +
+    \eta
+    \frac{
+        \sigma
+    }{
+        1 + \exp(
+            \sigma
+            \langle x_j - x_i, w \rangle
+        )
+    }
+    (x_j - x_i).
+\]
+There is an empirical observation that allows one to go to the optimization of an arbitrary ranking metric~$F$.
+It turns out that in order to do this, one must multiply the bias by the change in the metric~$\Delta F_{ij}$ that will occur when one rearranges~$x_i$ and~$x_j$
+places in the ranking:
+\[
+    w
+    :=
+    w
+    +
+    \eta
+    \frac{
+        \sigma
+    }{
+        1 + \exp(
+            \sigma
+            \langle x_j - x_i, w \rangle
+        )
+    }
+    |\Delta F_{ij}|
+    (x_j - x_i).
+\]
+This method is called \textbf{LambdaRank}.
+\end{frame}
+
+\begin{frame}
+\frametitle{pairwise2}
+
+\begin{center}
+    $ i \prec j \Rightarrow a(x_i) < a(x_j) $
+\end{center}
+
+As an estimate~$L(z)$ we can take, for example, the logistic function~$L(z) = \log(1 + e^{-\sigma z})$ with parameter~$\sigma > 0$~---
+In this case, we get the \textbf{RankNet}6 method.
+This functional can be optimized by ordinary stochastic gradient descent.
+If we use a linear model~$a(x) = \langle w, x \rangle$, then one step will be
+\[
+    w
+    :=
+    w
+    +
+    \eta
+    \frac{
+        \sigma
+    }{
+        1 + \exp(
+            \sigma
+            \langle x_j - x_i, w \rangle
+        )
+    }
+    (x_j - x_i).
+\]
+There is an empirical observation that allows one to go to the optimization of an arbitrary ranking metric~$F$.
+It turns out that in order to do this, one must multiply the bias by the change in the metric~$\Delta F_{ij}$ that will occur when one rearranges~$x_i$ and~$x_j$
+places in the ranking:
+\[
+    w
+    :=
+    w
+    +
+    \eta
+    \frac{
+        \sigma
+    }{
+        1 + \exp(
+            \sigma
+            \langle x_j - x_i, w \rangle
+        )
+    }
+    |\Delta F_{ij}|
+    (x_j - x_i).
+\]
+This method is called \textbf{LambdaRank}.
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{pairwise3}
+
+You can also derive the \textbf{RankSVM} method by analogy with the support vector method:
+\[
+    \left\{
+    \begin{aligned}
+        &\frac{1}{2} \|w\|^2 + C \sum_{(i, j) \in X} \xi_{ij} \to \min_{w, \xi}\\
+        &\langle w, x_j - x_i \rangle \geq 1 - \xi_{ij}, \quad (i, j) \in X;\\
+        &\xi_{ij} \geq 0, \quad (i, j) \in X.
+    \end{aligned}
+    \right.
+\]
+
+Note that it is often the pairwise approach that proves to be the best when solving the ranking problem.
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{listwise1}
+
+Let's take a look at the \textbf{ListNet} method, which allows us to directly consider the order
+of objects in the learning process.
+
+Consider one query~$q$ for which we need to rank~$n_q$ documents~$(d_1, \dots, d_{n_q})$.
+For these documents, we know the true relevance scores~$(y_1, \dots, y_{n_q})$
+which determine the true ranking.
+Let there also be some model~$a(x)$ that produces scores~$(z_1, \dots, z_{n_q})$.
+A ranking quality metric~(e.g., nDCG) measures how much the ranking from the model estimates
+are close to the true ranking.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{listwise2}
+
+In the setting we just described, the model outputs one particular permutation of documents for a given
+query, and we measure the quality of this permutation.
+Let us smooth this process: let us assume that the model actually outputs a distribution on all possible permutations
+documents, and the probability of a particular permutation~$\pi$ is defined as
+\[
+    P_z(\pi)
+    =
+    \prod_{j = 1}^{n_q}
+        \frac{
+            \phi(z_{\pi(j)})
+        }{
+            \sum_{k = j}^{n_q}
+                \phi(z_{\pi(k)})
+        },
+\]
+where~$\phi$~--- an arbitrary non-decreasing and strictly positive function.
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{listwise3}
+These probabilities have a number of useful properties:
+\begin{itemize}
+    \item The probabilities~$P_z(\pi)$ specify the distribution on the set of all permutations~$n_q$ of elements.
+    \item Let a permutation~$\pi$ put object~$x_i$ above object~$x_j$,
+        and~$z_i > z_j$.
+        If you swap these objects in the permutation~(that is, put~$x_j$ higher than~$x_i$),
+        then the new permutation will have a lower probability than the old one.
+        In other words, the closer the permutation is to the optimal permutation, the higher its probability.
+    \item The maximum probability is the permutation that sorts objects in descending order~$z_i$;
+        The permutation opposite to it has minimum probability.
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}
+    \frametitle{1233}
+    Consider one query~$q$ for which we need to rank~$n_q$ documents~$(d_1, \dots, d_{n_q})$.
+    For these documents, we know the true relevance scores~$(y_1, \dots, y_{n_q})$
+    which determine the true ranking.
+    Let there also be some model~$a(x)$ that produces scores~$(z_1, \dots, z_{n_q})$.
+    A ranking quality metric~(e.g., nDCG) measures how much the ranking from the model estimates
+    are close to the true ranking.
+\end{frame}
+
+\begin{frame}
+\frametitle{1233}
+The probability of a particular permutation~$\pi$ is defined as
+\[
+    P_z(\pi)
+    =
+    \prod_{j = 1}^{n_q}
+        \frac{
+            \phi(z_{\pi(j)})
+        }{
+            \sum_{k = j}^{n_q}
+                \phi(z_{\pi(k)})
+        },
+\]
+where~$\phi$~--- an arbitrary non-decreasing and strictly positive function. If we take, for example,~$\phi(x) = \exp(x)$
+
+
+To simplify the calculations, consider the probability~$P_z(j)$ of an object~$x_j$ getting to the first place
+after a permutation.
+
+\[
+    P_z(j)
+    =
+    \frac{
+        \phi(z_j)
+    }{
+        \sum_{k = 1}^{n}
+            \phi(z_k)
+    }
+\]
+\end{frame}
+
+\begin{frame}
+\frametitle{1233}
+
+\[
+    P_z(j)
+    =
+    \frac{
+        \phi(z_j)
+    }{
+        \sum_{k = 1}^{n}
+            \phi(z_k)
+    }
+\]
+Also, for objects with~$z_i > z_j$, the~$P_z(i) > P_z(j)$, 
+
+We can now compare the true ranking of the documents and the ranking by model estimates,
+by calculating the cross-entropy between their respective distributions:
+\[
+    Q(y, z)
+    =
+    -
+    \sum_{j = 1}^{n_q}
+        P_y(j)
+        \log P_z(j).
+\]
+\end{frame}
+\begin{frame}
+\frametitle{metrics1}
+Let's take \textbf{precision} on a single query~$q$ as an example.
+Since we are primarily interested in which documents end up
+at the very top of the search results, it is logical to consider the metric~\textbf{$\text{precision}@k(q)$}~---
+accuracy calculated for the documents that the model placed in the first~$k$ places.
+This metric will be one if all~$k$ documents are relevant,
+zero if they are all irrelevant.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{metrics2}
+\[
+    \text{AP}@k(q)
+    =
+    \sum_{i = 1}^{k}
+        \frac{
+            y_{(i)}
+        }{
+            \sum_{j = 1}^{k} y_{(j)}
+        }
+        \text{precision}@i(q),
+\]
+where~$y_{(i)}$~--- the relevance of the document at~$i$th position.
+It already takes order into account, and the document on the first position has more weight.
+The \textbf{AP} value averaged over all queries is called \textbf{MAP}~(mean average precision).
+\end{frame}
+\begin{frame}
+\frametitle{metrics3}
+If model predicts float~(for example, if there are multiple levels of relevance),
+then the~\textbf{DCG}~(discounted cumulative gain) metric can be used:
+\[
+    \text{DCG@k}(q)
+    =
+    \sum_{i = 1}^{k}
+        g(y_{(i)}) d(i).
+\]
+Examples of specific functions are~$g(y) = 2^{y} - 1$ and~$d(i) = \frac{1}{\log(i + 1)}$.
+To make the value of the metric easier to interpret, it can be divided by the \textbf{DCG} value
+of the perfect ranking~---in which case we get the metric~\textbf{nDCG}~(normalized DCG):
+\[
+    \text{nDCG@k}(q)
+    =
+    \frac{
+        \text{DCG@k}(q)
+    }{
+        \max \text{DCG@k}(q)
+    }.
+\]
+Then the value of \textbf{nDCG} can be averaged over all queries.
+\end{frame}
+\begin{frame}
+\frametitle{metrics4}
+Another example of a ranking metric~---is \textbf{pFound}, proposed by Yandex.
+Let the answers lie on the segment~$[0, 1]$ and reflect the probability of finding the answer in this document.
+Let's set the value of~$p_i$ corresponding to the probability of reaching~$i$th position.
+For the first position, it is one, because the user will definitely look
+to the first document: ~$p_1 = 1$.
+The probability of reaching~$(i+1)$th position is calculated as
+\[
+    p_{i + 1}
+    =
+    p_i
+    (1 - y_{(i)})
+    (1 - p_\text{out}),
+\]
+where~$p_\text{out}$~--- the probability that the user
+will leave without knowing the answer to their query.
+
+\end{frame}
+\begin{frame}
+\frametitle{metrics5}
+The \textbf{pFound} metric is equal to the probability of finding the answer among the first~$k$ documents:
+\[
+    \text{pFound}@k(q)
+    =
+    \sum_{i = 1}^{k}
+        p_i y_{(i)}.
+\]
+It is then averaged over all queries, like the other metrics.
+Note that \textbf{pFound} is~\emph{cascading}~---
+it takes into account that the user browses the search results
+from top to bottom, and that the usefulness of the document depends on the documents above it.
+\end{frame}
+\begin{frame}
+\frametitle{BM25}
+A document and a query can be compared, for example, by calculating the cosine distance
+between their TF-IDF representations.
+A more general way to calculate proximity is the Okapi BM25 function.
+Let query~$q$ consist of words~$q_1, \dots, q_n$.
+Then its similarity to the documents is calculated as
+\[
+    \text{BM25}(q, d)
+    =
+    \sum_{i = 1}^{n}
+        \text{IDF}(q_i)
+        \frac{
+            \text{tf}(q_i, d)
+            (k_1 + 1)
+        }{
+            \text{tf}(q_i, d)
+            +
+            k_1 \left(
+                1 - b + b \frac{|D|}{\bar n_d}
+            \right)
+        },
+\]
+where~$\text{tf}(q_i, d)$~--- the number of occurrences of the word~$q_i$ in the document~$d$,
+$|D|$~---the number of documents in the sample,
+$\bar n_d$~--- the average length of the document,
+\end{frame}
+\begin{frame}
+\frametitle{BM25}
+IDF~(inverse document frequency) can be calculated by the formula
+\[
+    \text{IDF}(q_i)
+    =
+    \log\frac{
+        |D|
+    }{
+        |\{d \in D | q_i \in d\}|
+    },
+\]
+i.e. as a fraction of documents containing a given word.
+The values~$b$ and~$k_1$ are parameters.
+
+The BM25 metric is derived from certain probabilistic assumptions about the relevance
+to the queries, but we will not dwell on them in this text.
+\end{frame}
+\begin{frame}
+\frametitle{PageRank}
+The PageRank algorithm allows you to find for each document a value,
+which characterizes its~<<importance>>.
+The documents in the network refer to each other, forming a graph.
+A document is considered important if it is referenced by many documents,
+which in their turn refer to few of them.
+Formally, the PageRank for a document~$d$ is given as
+$$
+    \text{PR}(d)
+    =
+    \frac{1 - \delta}{|D|}
+    +
+    \delta
+    \sum_{c \in D_d^\text{in}}
+        \frac{
+            \text{PR}(c)
+        }{
+            |D_c^\text{out}|
+        },
+$$
+Where~$D$~---the set of all documents,
+$D_d^\text{in}$ and~$D_d^\text{out}$~--- the sets of documents from and to which the edges of~$d$ lead, respectively.
+\end{frame}
+\begin{frame}
+\frametitle{metrics1}
+$Metric_n@k$ - metric on \textbf{n} candidates for the top \textbf{k} ($Acc_{100}@1$)
+
+$$
+MAP(x, y) = <x, (W + \alpha I)y>
+$$
+The MAP method learns a linear mapping on top
+of the response vector. The final score of a response
+with vector $y$ given a context with vector $x$ is the
+cosine similarity $<.,.>$ of the context vector with
+the mapped response vector
+\end{frame}
+\begin{frame}
+\frametitle{metrics1}
+\end{frame}
+\begin{frame}
+\frametitle{metrics1}
+\end{frame}
+\begin{frame}
+\frametitle{metrics1}
+\end{frame}
+\begin{frame}
+\frametitle{metrics1}
+\end{frame}
+\begin{frame}
+\frametitle{metrics1}
+\end{frame}
+\begin{frame}
+\frametitle{metrics1}
+\end{frame}
+\begin{frame}
+\frametitle{metrics1}
+\end{frame}
+\end{document}
